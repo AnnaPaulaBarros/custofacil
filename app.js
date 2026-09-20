@@ -143,6 +143,37 @@ async function loadProducts() {
   renderProducts((data || []).map(product => ({ ...product, pricing: Array.isArray(product.pricing) ? product.pricing[0] : product.pricing })));
 }
 
+async function loadMaterialsCatalog() {
+  const business = await getCurrentBusiness();
+  if (!business) return;
+  const { data } = await supabaseClient.from('materials').select('id,name,unit,purchase_quantity,purchase_price').eq('business_id', business.id).order('name');
+  const body = document.querySelector('#materials-catalog-body');
+  if (!body || !data?.length) return;
+  body.innerHTML = data.map(material => `<tr data-material-id="${material.id}"><td><strong>${material.name}</strong></td><td>${material.unit}</td><td>${material.purchase_quantity}</td><td>${money(material.purchase_price)}</td><td class="product-actions"><button data-material-action="edit">Editar</button><button data-material-action="duplicate">Duplicar</button><button data-material-action="delete">Excluir</button></td></tr>`).join('');
+}
+
+async function loadSuppliersCatalog() {
+  const business = await getCurrentBusiness();
+  if (!business) return;
+  const { data } = await supabaseClient.from('suppliers').select('id,name,phone,email').eq('business_id', business.id).order('name');
+  const body = document.querySelector('#suppliers-body');
+  if (!body || !data?.length) return;
+  body.innerHTML = data.map(supplier => `<tr data-supplier-id="${supplier.id}"><td><strong>${supplier.name}</strong></td><td>${supplier.email || supplier.phone || '-'}</td><td>-</td><td class="product-actions"><button data-supplier-action="edit">Editar</button><button data-supplier-action="duplicate">Duplicar</button><button data-supplier-action="delete">Excluir</button></td></tr>`).join('');
+}
+
+async function handleCatalogAction(event) {
+  const button = event.target.closest('[data-material-action], [data-supplier-action]');
+  const row = button?.closest('tr');
+  if (!button || !row) return;
+  const table = button.dataset.materialAction ? 'materials' : 'suppliers';
+  const action = button.dataset.materialAction || button.dataset.supplierAction;
+  const id = row.dataset.materialId || row.dataset.supplierId;
+  if (action === 'delete' && confirm('Excluir este registro?')) await supabaseClient.from(table).delete().eq('id', id);
+  if (action === 'edit') { const name = prompt('Novo nome:', row.querySelector('strong')?.textContent); if (name?.trim()) await supabaseClient.from(table).update({ name: name.trim() }).eq('id', id); }
+  if (action === 'duplicate') { const { data } = await supabaseClient.from(table).select('*').eq('id', id).single(); if (data) { delete data.id; data.name = `${data.name} (cópia)`; await supabaseClient.from(table).insert(data); } }
+  if (table === 'materials') loadMaterialsCatalog(); else loadSuppliersCatalog();
+}
+
 function exportProductsCsv() {
   const rows = [...document.querySelectorAll('#products-view tbody tr[data-product-id]')].map(row => [...row.querySelectorAll('td')].slice(0, 6).map(cell => `"${cell.textContent.replaceAll('"', '""').trim()}"`));
   const csv = ['Produto,Custo,Preco,Margem,Lucro,Atualizado', ...rows.map(row => row.join(','))].join('\n');
@@ -201,6 +232,8 @@ function showView(view) {
   document.querySelector('.sidebar')?.classList.remove('open');
   window.scrollTo({ top: 0, behavior: 'smooth' });
   if (view === 'products') loadProducts();
+  if (view === 'materials') loadMaterialsCatalog();
+  if (view === 'suppliers') loadSuppliersCatalog();
 }
 
 let authMode = 'login';
@@ -390,6 +423,7 @@ document.addEventListener('click', event => {
   if (event.target.closest('#export-products')) exportProductsCsv();
   if (event.target.closest('#import-products')) document.querySelector('#products-file').click();
   if (event.target.closest('[data-product-action]')) handleProductAction(event);
+  if (event.target.closest('[data-material-action], [data-supplier-action]')) handleCatalogAction(event);
   if (event.target.closest('.mobile-menu')) document.querySelector('.sidebar').classList.toggle('open');
   if (event.target.closest('#currency-toggle')) { state.currency = state.currency === '€' ? 'R$' : '€'; state.currencyCode = state.currency === '€' ? 'EUR' : 'BRL'; event.target.closest('#currency-toggle').innerHTML = `${state.currency} ${state.currencyCode} <span>⌄</span>`; syncCurrencyLabels(); calculatePricing(); }
 });
