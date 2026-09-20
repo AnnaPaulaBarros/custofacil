@@ -1,4 +1,4 @@
- .visual-leaf{width:86px!important;height:86px!important;border-radius:50%!important;overflow:hidden!important;background:transparent!important;opacity:.22;transform:rotate(-8deg)}.visual-leaf img{width:100%!important;height:100%!important;max-width:none!important;transform:none!important;object-fit:contain!important;mix-blend-mode:multiply;opacity:.9;filter:saturate(.48) brightness(1.08)}
+ .visual-leaf{width:76px!important;height:76px!important;border-radius:14px!important;overflow:hidden!important;background:#e9f1d6!important;opacity:.68;transform:rotate(-5deg);box-shadow:0 8px 18px rgba(66,87,45,.1)}.visual-leaf img{width:100%!important;height:100%!important;max-width:none!important;transform:none!important;object-fit:contain!important;mix-blend-mode:multiply;opacity:.94;filter:saturate(.82) brightness(1.04)}
 html,body{max-width:100%;overflow-x:hidden}
  .brand-lockup .brand-mark{width:46px;height:46px;border-radius:13px;flex-shrink:0}
  .brand-lockup .brand-mark img{width:100%;height:100%;transform:none;object-fit:contain}
