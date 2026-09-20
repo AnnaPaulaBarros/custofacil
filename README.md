@@ -94,7 +94,7 @@ A estratégia de experiência é híbrida:
 - Supabase PostgreSQL.
 - Row Level Security, ou RLS.
 - Vercel para hospedagem e deploy.
-- Google Fonts: DM Sans e Space Grotesk.
+- Google Fonts: Manrope (400, 500, 600, 700 e ExtraBold 800).
 - Supabase JS Client carregado via CDN.
 
 A escolha por HTML, CSS e JavaScript puro foi intencional para manter o MVP simples, rápido de publicar e fácil de entender. A aplicação não depende de um processo de build local nem de Node.js para ser executada no navegador.
