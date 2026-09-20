@@ -77,6 +77,18 @@ function calculatePricing() {
   return { totalCost, suggestedPrice, profit };
 }
 
+function calculateSimulator() {
+  const currentCost = numberValue('#simulator-cost');
+  const change = numberValue('#simulator-change') / 100;
+  const margin = numberValue('#simulator-margin') / 100;
+  const newCost = currentCost * (1 + change);
+  const newPrice = newCost / Math.max(0.01, 1 - margin - numberValue('#selling-fees') / 100);
+  const currentPrice = currentCost / Math.max(0.01, 1 - margin - numberValue('#selling-fees') / 100);
+  document.querySelector('#simulator-new-cost').textContent = money(newCost);
+  document.querySelector('#simulator-price').textContent = money(newPrice);
+  document.querySelector('#simulator-difference').textContent = `+${money(newPrice - currentPrice)}`;
+}
+
 function addMaterial() {
   const row = document.createElement('tr');
   row.innerHTML = `<td><input class="material-name" value="Novo material"></td><td><input class="material-purchase-qty" type="number" value="1"></td><td><div class="input-money"><span>${state.currency}</span><input class="material-price" type="number" value="0" step="0.01"></div></td><td><input class="material-used-qty" type="number" value="1" step="0.1"></td><td class="calculated material-total">${money(0)}</td><td><button class="delete-row" aria-label="Excluir material">×</button></td>`;
@@ -104,7 +116,7 @@ function showView(view) {
   document.querySelectorAll('.view').forEach(section => section.classList.remove('active-view'));
   document.querySelector(`#${view}-view`)?.classList.add('active-view');
   document.querySelectorAll('.nav-item[data-view]').forEach(item => item.classList.toggle('active', item.dataset.view === view));
-  const names = { dashboard: 'Dashboard', pricing: 'Nova precificação', products: 'Produtos' };
+  const names = { dashboard: 'Dashboard', pricing: 'Nova precificação', products: 'Produtos', materials: 'Materiais', labor: 'Mão de obra', costs: 'Custos indiretos', analysis: 'Análises', simulator: 'Simulador', settings: 'Configurações' };
   document.querySelector('#breadcrumb-current').textContent = names[view] || 'Dashboard';
   document.querySelector('.sidebar')?.classList.remove('open');
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -177,6 +189,7 @@ async function restoreAuth() {
 
 document.addEventListener('input', event => {
   if (event.target.closest('#pricing-view')) calculatePricing();
+  if (event.target.closest('#simulator-view')) calculateSimulator();
 });
 document.addEventListener('click', event => {
   const viewTrigger = event.target.closest('[data-view]');
@@ -197,5 +210,6 @@ document.addEventListener('click', event => {
 
 syncCurrencyLabels();
 calculatePricing();
+calculateSimulator();
 document.querySelector('#auth-form').addEventListener('submit', submitAuth);
 restoreAuth();
