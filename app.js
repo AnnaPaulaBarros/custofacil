@@ -385,6 +385,8 @@ document.addEventListener('click', event => {
   if (event.target.closest('#forgot-password')) requestPasswordReset();
   if (event.target.closest('#sign-out')) supabaseClient?.auth.signOut().then(() => window.location.reload());
   if (event.target.closest('#save-settings')) saveBusinessSettings();
+  if (event.target.closest('#add-supplier')) document.querySelector('#supplier-form').hidden = false;
+  if (event.target.closest('#save-supplier')) saveSupplier();
   if (event.target.closest('#export-products')) exportProductsCsv();
   if (event.target.closest('#import-products')) document.querySelector('#products-file').click();
   if (event.target.closest('[data-product-action]')) handleProductAction(event);
@@ -393,6 +395,16 @@ document.addEventListener('click', event => {
 });
 
 document.addEventListener('change', event => { if (event.target.id === 'products-file' && event.target.files[0]) importProductsCsv(event.target.files[0]); });
+
+async function saveSupplier() {
+  const business = await getCurrentBusiness();
+  if (!business) { openAuth(); return; }
+  const name = document.querySelector('#supplier-name').value.trim();
+  if (!name) return;
+  const result = await supabaseClient.from('suppliers').insert({ business_id: business.id, name, phone: document.querySelector('#supplier-phone').value.trim(), email: document.querySelector('#supplier-email').value.trim() });
+  if (result.error) { document.querySelector('#toast').textContent = 'Não foi possível salvar o fornecedor.'; } else { document.querySelector('#toast').textContent = 'Fornecedor salvo com sucesso.'; document.querySelector('#supplier-form').hidden = true; }
+  document.querySelector('#toast').classList.add('show'); setTimeout(() => document.querySelector('#toast').classList.remove('show'), 3000);
+}
 
 syncCurrencyLabels();
 calculatePricing();
