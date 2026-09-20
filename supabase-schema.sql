@@ -80,11 +80,32 @@ create table if not exists public.pricing (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists public.price_history (
+  id uuid primary key default gen_random_uuid(),
+  product_id uuid not null references public.products(id) on delete cascade,
+  total_cost numeric(14,4) not null default 0,
+  suggested_price numeric(14,4) not null default 0,
+  desired_margin numeric(7,4) not null default 0,
+  estimated_profit numeric(14,4) not null default 0,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.business_goals (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid not null references public.businesses(id) on delete cascade,
+  monthly_profit_target numeric(14,4) not null default 0,
+  fixed_costs_monthly numeric(14,4) not null default 0,
+  updated_at timestamptz not null default now(),
+  unique (business_id)
+);
+
 create index if not exists businesses_user_id_idx on public.businesses(user_id);
 create index if not exists products_business_id_idx on public.products(business_id);
 create index if not exists materials_business_id_idx on public.materials(business_id);
 create index if not exists indirect_costs_business_id_idx on public.indirect_costs(business_id);
 create index if not exists pricing_product_id_idx on public.pricing(product_id);
+create index if not exists price_history_product_id_idx on public.price_history(product_id);
+create index if not exists business_goals_business_id_idx on public.business_goals(business_id);
 
 -- Cria automaticamente um negocio para cada novo usuario.
 create or replace function public.create_default_business()
@@ -132,6 +153,8 @@ alter table public.labor enable row level security;
 alter table public.indirect_costs enable row level security;
 alter table public.selling_costs enable row level security;
 alter table public.pricing enable row level security;
+alter table public.price_history enable row level security;
+alter table public.business_goals enable row level security;
 
 drop policy if exists businesses_owner_policy on public.businesses;
 create policy businesses_owner_policy on public.businesses
@@ -171,3 +194,13 @@ drop policy if exists pricing_owner_policy on public.pricing;
 create policy pricing_owner_policy on public.pricing
 for all using (exists (select 1 from public.products p join public.businesses b on b.id = p.business_id where p.id = product_id and b.user_id = auth.uid()))
 with check (exists (select 1 from public.products p join public.businesses b on b.id = p.business_id where p.id = product_id and b.user_id = auth.uid()));
+
+drop policy if exists price_history_owner_policy on public.price_history;
+create policy price_history_owner_policy on public.price_history
+for all using (exists (select 1 from public.products p join public.businesses b on b.id = p.business_id where p.id = product_id and b.user_id = auth.uid()))
+with check (exists (select 1 from public.products p join public.businesses b on b.id = p.business_id where p.id = product_id and b.user_id = auth.uid()));
+
+drop policy if exists business_goals_owner_policy on public.business_goals;
+create policy business_goals_owner_policy on public.business_goals
+for all using (exists (select 1 from public.businesses b where b.id = business_id and b.user_id = auth.uid()))
+with check (exists (select 1 from public.businesses b where b.id = business_id and b.user_id = auth.uid()));

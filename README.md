@@ -381,47 +381,30 @@ Os valores são mantidos como números durante o processamento e formatados apen
 
 ### Qual é o principal trade-off atual?
 
-O MVP prioriza clareza e velocidade de entrega. O dashboard ainda possui dados demonstrativos em algumas áreas, e o salvamento completo da precificação ainda é uma evolução necessária. O schema já prepara a base para essa persistência.
+O MVP prioriza clareza e velocidade de entrega. O dashboard ainda combina dados demonstrativos com a contagem real de produtos enquanto as métricas completas são consolidadas.
 
 ## Limitações atuais
 
 - A calculadora principal funciona no frontend.
 - O login e cadastro estão integrados ao Supabase Auth.
 - Configurações do negócio podem ser carregadas e salvas para usuários autenticados.
-- O schema do banco está preparado, mas o fluxo completo de salvar cada precificação ainda precisa ser conectado aos formulários.
-- O dashboard contém dados demonstrativos em partes da interface.
+- O fluxo de salvar produto, materiais, mão de obra, custos e precificação está conectado ao Supabase para usuários autenticados.
+- O schema também possui histórico de preços e metas; execute novamente o SQL no Supabase após as últimas alterações.
 - O PDF é gerado pelo diálogo de impressão do navegador.
-- Ainda não há testes automatizados em um framework de testes.
-- Ainda não há recuperação de senha implementada na interface.
-- Ainda não há edição, duplicação e exclusão persistentes de produtos.
+- Os testes atuais são uma suíte leve em `tests.js`, executável no navegador; uma suíte em framework ainda é uma evolução.
+- A recuperação envia o link pelo Supabase Auth e permite atualizar a senha após o redirecionamento.
+- Edição, duplicação e exclusão de produtos estão disponíveis no catálogo para usuários autenticados.
+- A importação e exportação atual usa CSV; formatos XLSX e XLS ainda são uma evolução.
 
 ## Próximas evoluções
 
-1. Salvar produtos, materiais, mão de obra e precificações no Supabase.
-2. Carregar o dashboard com dados reais do usuário.
-3. Implementar recuperação de senha.
-4. Criar histórico de alterações de preços.
-5. Adicionar ponto de equilíbrio e meta de lucro.
-6. Implementar edição, duplicação e exclusão de produtos.
-7. Criar testes automatizados para as fórmulas.
-8. Adicionar importação e exportação de planilhas.
-9. Adicionar domínio próprio da Pedetech ou do produto.
-10. Evoluir para TypeScript quando a complexidade justificar.
+1. Consolidar todas as métricas do dashboard com consultas agregadas reais.
+2. Adicionar edição completa dos custos ao abrir um produto existente.
+3. Evoluir a importação CSV para XLSX/XLS.
+4. Evoluir os testes para um framework automatizado.
+5. Adicionar domínio próprio da Pedetech ou do produto.
+6. Migrar para TypeScript quando a complexidade justificar.
 
-## Checklist de demonstração
 
-Para demonstrar o projeto em uma entrevista:
 
-1. Abra a página inicial e explique o problema de negócio.
-2. Mostre que o visitante pode testar sem criar conta.
-3. Entre em **Nova precificação**.
-4. Explique o cálculo de um material por unidade.
-5. Mostre como o tempo de mão de obra vira custo.
-6. Altere a margem e observe o preço mudar em tempo real.
-7. Mostre o simulador “E se?”.
-8. Abra a ajuda e explique a preocupação com acessibilidade e linguagem simples.
-9. Demonstre o cadastro/login pelo Supabase.
-10. Abra configurações e salve o nome e a moeda do negócio.
-11. Explique o schema e as políticas RLS.
-12. Mostre o deploy da Vercel e a integração com GitHub.
 

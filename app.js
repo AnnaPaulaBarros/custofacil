@@ -13,7 +13,7 @@ function calculateMaterials() {
     const purchaseQuantity = Number(row.querySelector('.material-purchase-qty')?.value || 0);
     const purchasePrice = Number(row.querySelector('.material-price')?.value || 0);
     const usedQuantity = Number(row.querySelector('.material-used-qty')?.value || 0);
-    const cost = purchaseQuantity ? purchasePrice / purchaseQuantity * usedQuantity : 0;
+    const cost = window.CustoFacilCalculations.materialCost(purchasePrice, purchaseQuantity, usedQuantity);
     total += cost;
     row.querySelector('.material-total').textContent = money(cost);
   });
@@ -28,7 +28,7 @@ function calculateLabor() {
     totalMinutes += Number(row.querySelector('.labor-hours')?.value || 0) * 60;
     totalMinutes += Number(row.querySelector('.labor-minutes')?.value || 0);
   });
-  const total = hourlyRate * totalMinutes / 60;
+  const total = window.CustoFacilCalculations.laborCost(hourlyRate, Math.floor(totalMinutes / 60), totalMinutes % 60);
   document.querySelector('#labor-total').textContent = money(total);
   return total;
 }
@@ -38,7 +38,7 @@ function calculateIndirectCosts() {
   document.querySelectorAll('#cost-list .cost-row').forEach(row => {
     const monthly = Number(row.querySelector('.monthly-cost')?.value || 0);
     const production = Number(row.querySelector('.monthly-production')?.value || 0);
-    const cost = production ? monthly / production : 0;
+    const cost = window.CustoFacilCalculations.indirectCost(monthly, production);
     total += cost;
     row.querySelector('.indirect-total').textContent = money(cost);
   });
@@ -53,12 +53,7 @@ function calculatePricing() {
   const lossPercent = numberValue('#loss-percent') / 100;
   const fees = numberValue('#selling-fees') / 100;
   const margin = numberValue('#desired-margin') / 100;
-  const loss = (materials + labor + indirect) * lossPercent;
-  const totalCost = materials + labor + indirect + loss;
-  const divisor = Math.max(0.01, 1 - margin - fees);
-  const suggestedPrice = totalCost / divisor;
-  const profit = suggestedPrice * (1 - fees) - totalCost;
-  const markup = suggestedPrice / (totalCost || 1);
+  const { loss, totalCost, suggestedPrice, profit, markup } = window.CustoFacilCalculations.pricing({ materials, labor, indirect, lossPercent, fees, margin });
   document.querySelector('#suggested-price').textContent = money(suggestedPrice);
   document.querySelector('#total-cost').textContent = money(totalCost);
   document.querySelector('#estimated-profit').textContent = money(profit);
@@ -87,6 +82,74 @@ function calculateSimulator() {
   document.querySelector('#simulator-new-cost').textContent = money(newCost);
   document.querySelector('#simulator-price').textContent = money(newPrice);
   document.querySelector('#simulator-difference').textContent = `+${money(newPrice - currentPrice)}`;
+  const fixedCosts = numberValue('#break-even-fixed');
+  const sellingPrice = numberValue('#break-even-price');
+  const variableCost = numberValue('#break-even-variable');
+  const targetProfit = numberValue('#profit-target');
+  const breakEven = window.CustoFacilCalculations.breakEven(fixedCosts, sellingPrice, variableCost);
+  const targetSales = window.CustoFacilCalculations.salesForProfit(targetProfit, fixedCosts, sellingPrice, variableCost);
+  if (document.querySelector('#break-even-result')) document.querySelector('#break-even-result').textContent = `${Math.ceil(breakEven)} unidades`;
+  if (document.querySelector('#profit-target-result')) document.querySelector('#profit-target-result').textContent = `${Math.ceil(targetSales)} unidades`;
+}
+
+async function getCurrentBusiness() {
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  if (!sessionData.session?.user) return null;
+  const { data } = await supabaseClient.from('businesses').select('id').eq('user_id', sessionData.session.user.id).limit(1).maybeSingle();
+  return data;
+}
+
+function ensureProductTools() {
+  const view = document.querySelector('#products-view');
+  if (!view || document.querySelector('#product-tools')) return;
+  const toolbar = view.querySelector('.table-toolbar');
+  const tools = document.createElement('div');
+  tools.id = 'product-tools';
+  tools.innerHTML = '<button class="button button-outline small" id="export-products">↓ Exportar CSV</button><button class="button button-outline small" id="import-products">↑ Importar CSV</button><input id="products-file" type="file" accept=".csv,text/csv" hidden>';
+  toolbar.appendChild(tools);
+}
+
+function renderProducts(products) {
+  const body = document.querySelector('#products-view tbody');
+  if (!body) return;
+  if (!products.length) { body.innerHTML = '<tr><td colspan="7">Nenhum produto salvo ainda.</td></tr>'; return; }
+  const dashboardCount = document.querySelector('#dashboard-view .metric-card strong');
+  if (dashboardCount) dashboardCount.textContent = products.length;
+  body.innerHTML = products.map(product => `<tr data-product-id="${product.id}"><td><strong>${product.name}</strong><small>${product.category || 'Sem categoria'} · ${product.unit}</small></td><td>${money(product.pricing?.total_cost)}</td><td><strong>${money(product.pricing?.suggested_price)}</strong></td><td><span class="margin-pill ${Number(product.pricing?.desired_margin || 0) >= 30 ? 'good' : 'warning'}">${Number(product.pricing?.desired_margin || 0).toFixed(1).replace('.', ',')}%</span></td><td class="green">${money(product.pricing?.estimated_profit)}</td><td>${new Date(product.created_at).toLocaleDateString('pt-BR')}</td><td class="product-actions"><button data-product-action="edit">Editar</button><button data-product-action="duplicate">Duplicar</button><button data-product-action="delete">Excluir</button></td></tr>`).join('');
+}
+
+async function loadProducts() {
+  ensureProductTools();
+  const business = await getCurrentBusiness();
+  if (!business) return;
+  const { data } = await supabaseClient.from('products').select('id,name,category,unit,created_at,pricing(total_cost,suggested_price,estimated_profit,desired_margin)').eq('business_id', business.id).order('created_at', { ascending: false });
+  renderProducts((data || []).map(product => ({ ...product, pricing: Array.isArray(product.pricing) ? product.pricing[0] : product.pricing })));
+}
+
+function exportProductsCsv() {
+  const rows = [...document.querySelectorAll('#products-view tbody tr[data-product-id]')].map(row => [...row.querySelectorAll('td')].slice(0, 6).map(cell => `"${cell.textContent.replaceAll('"', '""').trim()}"`));
+  const csv = ['Produto,Custo,Preco,Margem,Lucro,Atualizado', ...rows.map(row => row.join(','))].join('\n');
+  const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); link.download = 'custofacil-produtos.csv'; link.click(); URL.revokeObjectURL(link.href);
+}
+
+async function importProductsCsv(file) {
+  const business = await getCurrentBusiness();
+  if (!business) { openAuth(); return; }
+  const lines = (await file.text()).split(/\r?\n/).slice(1).filter(Boolean);
+  const products = lines.map(line => line.split(',')[0].replace(/^"|"$/g, '').trim()).filter(Boolean).map(name => ({ business_id: business.id, name, unit: 'unidade', production_quantity: 1 }));
+  if (products.length) await supabaseClient.from('products').insert(products);
+  loadProducts();
+}
+
+async function handleProductAction(event) {
+  const button = event.target.closest('[data-product-action]');
+  const row = button?.closest('tr');
+  if (!button || !row) return;
+  const id = row.dataset.productId;
+  if (button.dataset.productAction === 'delete') { if (confirm('Excluir este produto?')) await supabaseClient.from('products').delete().eq('id', id); }
+  if (button.dataset.productAction === 'duplicate') { const { data } = await supabaseClient.from('products').select('business_id,name,category,unit,production_quantity').eq('id', id).single(); if (data) await supabaseClient.from('products').insert({ ...data, name: `${data.name} (cópia)` }); }
+  if (button.dataset.productAction === 'edit') { const name = prompt('Novo nome do produto:', row.querySelector('strong')?.textContent); if (name?.trim()) await supabaseClient.from('products').update({ name: name.trim() }).eq('id', id); }
+  loadProducts();
 }
 
 function addMaterial() {
@@ -130,12 +193,36 @@ function setAuthMode(mode) {
   document.querySelector('#auth-password').autocomplete = mode === 'signup' ? 'new-password' : 'current-password';
   document.querySelector('#auth-title').textContent = mode === 'signup' ? 'Comece a guardar seus preços.' : 'Guarde suas precificações.';
   document.querySelector('#auth-submit').textContent = mode === 'signup' ? 'Criar conta gratuita' : 'Entrar na conta';
+  document.querySelector('#reset-password-field').hidden = mode !== 'reset';
+  if (mode === 'reset') document.querySelector('#auth-submit').textContent = 'Atualizar senha';
+  document.querySelector('#forgot-password').hidden = mode !== 'login';
   document.querySelector('#auth-message').textContent = '';
 }
 
 function openAuth() {
   document.querySelector('#auth-overlay').hidden = false;
   document.querySelector('#auth-email').focus();
+}
+
+async function requestPasswordReset() {
+  const email = document.querySelector('#auth-email').value.trim();
+  const message = document.querySelector('#auth-message');
+  if (!email) { message.textContent = 'Informe seu e-mail para receber o link de recuperação.'; return; }
+  const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}${window.location.pathname}?reset=1` });
+  if (error) { message.textContent = error.message; return; }
+  message.style.color = '#6d9634';
+  message.textContent = 'Enviamos um link de recuperação para seu e-mail.';
+}
+
+async function updatePassword() {
+  const password = document.querySelector('#reset-password').value;
+  const message = document.querySelector('#auth-message');
+  if (password.length < 6) { message.textContent = 'A nova senha precisa ter pelo menos 6 caracteres.'; return; }
+  const { error } = await supabaseClient.auth.updateUser({ password });
+  if (error) { message.textContent = error.message; return; }
+  message.style.color = '#6d9634';
+  message.textContent = 'Senha atualizada. Você já pode entrar novamente.';
+  setAuthMode('login');
 }
 
 function closeAuth() { document.querySelector('#auth-overlay').hidden = true; }
@@ -149,6 +236,7 @@ async function submitAuth(event) {
   const password = document.querySelector('#auth-password').value;
   const name = document.querySelector('#auth-name').value.trim();
   if (!supabaseClient) { message.textContent = 'Não foi possível conectar ao Supabase.'; return; }
+  if (authMode === 'reset') { await updatePassword(); return; }
   const submit = document.querySelector('#auth-submit');
   submit.disabled = true;
   submit.textContent = 'Aguarde...';
@@ -188,6 +276,8 @@ async function restoreAuth() {
   const { data } = await supabaseClient.auth.getSession();
   updateProfile(data.session?.user);
   if (data.session?.user) loadBusinessSettings(data.session.user.id);
+  loadProducts();
+  if (new URLSearchParams(window.location.search).get('reset') === '1') { openAuth(); setAuthMode('reset'); }
 }
 
 async function loadBusinessSettings(userId) {
@@ -227,6 +317,30 @@ async function saveBusinessSettings() {
   message.textContent = 'Configurações salvas com sucesso.';
 }
 
+async function savePricing() {
+  const message = document.querySelector('#toast');
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  const user = sessionData.session?.user;
+  if (!user) { message.textContent = 'Entre na sua conta para salvar a precificação.'; message.classList.add('show'); setTimeout(() => message.classList.remove('show'), 3000); openAuth(); return; }
+  const { data: business, error: businessError } = await supabaseClient.from('businesses').select('id').eq('user_id', user.id).limit(1).maybeSingle();
+  if (businessError || !business) { message.textContent = 'Configure seu negócio antes de salvar.'; message.classList.add('show'); setTimeout(() => message.classList.remove('show'), 3000); return; }
+  const result = calculatePricing();
+  const productPayload = { business_id: business.id, name: document.querySelector('#product-name').value.trim() || 'Produto sem nome', category: document.querySelector('#product-category').value, unit: document.querySelector('#pricing-view select').value, production_quantity: numberValue('#production-quantity') || 1 };
+  const { data: product, error: productError } = await supabaseClient.from('products').insert(productPayload).select().single();
+  if (productError) { message.textContent = 'Não foi possível salvar o produto. Verifique o schema do Supabase.'; message.classList.add('show'); setTimeout(() => message.classList.remove('show'), 3500); return; }
+  const materials = [...document.querySelectorAll('#materials-body tr')].map(row => ({ business_id: business.id, name: row.querySelector('.material-name').value.trim() || 'Material', unit: 'unidade', purchase_quantity: Number(row.querySelector('.material-purchase-qty').value) || 1, purchase_price: Number(row.querySelector('.material-price').value) || 0, used: Number(row.querySelector('.material-used-qty').value) || 0 }));
+  const { data: materialRows, error: materialError } = await supabaseClient.from('materials').insert(materials.map(({ used, ...material }) => material)).select();
+  if (materialError) { message.textContent = 'Produto salvo, mas houve erro nos materiais.'; message.classList.add('show'); setTimeout(() => message.classList.remove('show'), 3500); return; }
+  await supabaseClient.from('product_materials').insert(materialRows.map((material, index) => ({ product_id: product.id, material_id: material.id, quantity_used: materials[index].used })));
+  const labor = [...document.querySelectorAll('#labor-list .labor-row')].map(row => ({ product_id: product.id, description: row.querySelector('input').value, hourly_rate: numberValue('#hourly-rate'), hours: Number(row.querySelector('.labor-hours').value) || 0, minutes: Number(row.querySelector('.labor-minutes').value) || 0 }));
+  if (labor.length) await supabaseClient.from('labor').insert(labor);
+  const indirect = [...document.querySelectorAll('#cost-list .cost-row')].map(row => ({ business_id: business.id, name: row.querySelector('input').value, monthly_value: Number(row.querySelector('.monthly-cost').value) || 0, monthly_production: Number(row.querySelector('.monthly-production').value) || 1 }));
+  if (indirect.length) await supabaseClient.from('indirect_costs').insert(indirect);
+  await supabaseClient.from('pricing').insert({ product_id: product.id, desired_margin: numberValue('#desired-margin'), loss_percentage: numberValue('#loss-percent'), markup: result.markup, total_cost: result.totalCost, suggested_price: result.suggestedPrice, estimated_profit: result.profit });
+  await supabaseClient.from('price_history').insert({ product_id: product.id, total_cost: result.totalCost, suggested_price: result.suggestedPrice, desired_margin: numberValue('#desired-margin'), estimated_profit: result.profit });
+  message.textContent = 'Precificação salva com sucesso.'; message.classList.add('show'); setTimeout(() => message.classList.remove('show'), 3000);
+}
+
 document.addEventListener('input', event => {
   if (event.target.closest('#pricing-view')) calculatePricing();
   if (event.target.closest('#simulator-view')) calculateSimulator();
@@ -238,18 +352,24 @@ document.addEventListener('click', event => {
   if (event.target.closest('#add-labor')) addLabor();
   if (event.target.closest('#add-cost')) addCost();
   if (event.target.closest('.delete-row')) { event.target.closest('tr, .labor-row, .cost-row').remove(); calculatePricing(); }
-  if (event.target.closest('#save-product')) { document.querySelector('#toast').classList.add('show'); setTimeout(() => document.querySelector('#toast').classList.remove('show'), 2700); }
+  if (event.target.closest('#save-product')) savePricing();
   if (event.target.closest('#export-pdf')) { calculatePricing(); window.print(); }
   if (event.target.closest('#open-auth')) openAuth();
   if (event.target.closest('#close-auth') || event.target.id === 'auth-overlay') closeAuth();
   if (event.target.closest('#open-help')) openHelp();
   if (event.target.closest('#close-help') || event.target.closest('#close-help-action') || event.target.id === 'help-overlay') closeHelp();
   if (event.target.closest('.auth-tab')) setAuthMode(event.target.closest('.auth-tab').dataset.authMode);
+  if (event.target.closest('#forgot-password')) requestPasswordReset();
   if (event.target.closest('#sign-out')) supabaseClient?.auth.signOut().then(() => window.location.reload());
   if (event.target.closest('#save-settings')) saveBusinessSettings();
+  if (event.target.closest('#export-products')) exportProductsCsv();
+  if (event.target.closest('#import-products')) document.querySelector('#products-file').click();
+  if (event.target.closest('[data-product-action]')) handleProductAction(event);
   if (event.target.closest('.mobile-menu')) document.querySelector('.sidebar').classList.toggle('open');
   if (event.target.closest('#currency-toggle')) { state.currency = state.currency === '€' ? 'R$' : '€'; state.currencyCode = state.currency === '€' ? 'EUR' : 'BRL'; event.target.closest('#currency-toggle').innerHTML = `${state.currency} ${state.currencyCode} <span>⌄</span>`; syncCurrencyLabels(); calculatePricing(); }
 });
+
+document.addEventListener('change', event => { if (event.target.id === 'products-file' && event.target.files[0]) importProductsCsv(event.target.files[0]); });
 
 syncCurrencyLabels();
 calculatePricing();
