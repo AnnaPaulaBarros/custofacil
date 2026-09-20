@@ -37,7 +37,7 @@
       </nav>
       <div class="sidebar-footer">
         <button class="nav-item" data-view="settings"><span>⚙</span>Configurações</button>
-        <div class="help-card"><div class="help-icon">?</div><div><strong>Precisa de ajuda?</strong><small>Veja como calcular melhor</small></div><button class="icon-button">↗</button></div>
+        <div class="help-card"><div class="help-icon">?</div><div><strong>Precisa de ajuda?</strong><small>Veja como calcular melhor</small></div><button class="icon-button" id="open-help" aria-label="Abrir ajuda">↗</button></div>
         <div class="profile" id="profile-area"><div class="avatar coral">?</div><div><strong>Visitante</strong><small>Teste gratuito</small></div><button class="profile-login" id="open-auth">Entrar</button></div>
       </div>
     </aside>
@@ -101,6 +101,20 @@
         <button class="button button-dark full" type="submit" id="auth-submit">Entrar na conta</button>
       </form>
       <p class="auth-privacy">Seus dados ficam protegidos e só você acessa suas precificações.</p>
+    </section>
+  </div>
+  <div class="help-overlay" id="help-overlay" hidden>
+    <section class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-title">
+      <button class="auth-close" id="close-help" aria-label="Fechar ajuda">×</button>
+      <div class="auth-mark">?</div>
+      <p class="eyebrow">GUIA RÁPIDO</p>
+      <h2 id="help-title">Como calcular melhor?</h2>
+      <p class="auth-description">Você não precisa dominar contabilidade. Estes conceitos já aparecem calculados no CustoFácil.</p>
+      <div class="help-definition"><strong>Margem</strong><p>É a porcentagem do preço de venda que sobra depois dos custos considerados.</p></div>
+      <div class="help-definition"><strong>Markup</strong><p>É o índice que transforma o custo em um preço de venda considerando taxas e lucro.</p></div>
+      <div class="help-definition"><strong>Custo indireto</strong><p>É uma despesa do negócio, como energia ou aluguel, distribuída entre os produtos.</p></div>
+      <div class="help-definition"><strong>Margem de contribuição</strong><p>É o que sobra da venda para pagar custos fixos e gerar lucro.</p></div>
+      <button class="button button-dark full" id="close-help-action">Entendi</button>
     </section>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

@@ -139,6 +139,8 @@ function openAuth() {
 }
 
 function closeAuth() { document.querySelector('#auth-overlay').hidden = true; }
+function openHelp() { document.querySelector('#help-overlay').hidden = false; }
+function closeHelp() { document.querySelector('#help-overlay').hidden = true; }
 
 async function submitAuth(event) {
   event.preventDefault();
@@ -240,6 +242,8 @@ document.addEventListener('click', event => {
   if (event.target.closest('#export-pdf')) { calculatePricing(); window.print(); }
   if (event.target.closest('#open-auth')) openAuth();
   if (event.target.closest('#close-auth') || event.target.id === 'auth-overlay') closeAuth();
+  if (event.target.closest('#open-help')) openHelp();
+  if (event.target.closest('#close-help') || event.target.closest('#close-help-action') || event.target.id === 'help-overlay') closeHelp();
   if (event.target.closest('.auth-tab')) setAuthMode(event.target.closest('.auth-tab').dataset.authMode);
   if (event.target.closest('#sign-out')) supabaseClient?.auth.signOut().then(() => window.location.reload());
   if (event.target.closest('#save-settings')) saveBusinessSettings();
