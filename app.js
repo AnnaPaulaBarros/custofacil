@@ -185,6 +185,44 @@ async function restoreAuth() {
   if (!supabaseClient) return;
   const { data } = await supabaseClient.auth.getSession();
   updateProfile(data.session?.user);
+  if (data.session?.user) loadBusinessSettings(data.session.user.id);
+}
+
+async function loadBusinessSettings(userId) {
+  const { data } = await supabaseClient.from('businesses').select('name, segment, currency').eq('user_id', userId).limit(1).maybeSingle();
+  if (!data) return;
+  document.querySelector('#settings-business').value = data.name || '';
+  document.querySelector('#settings-segment').value = data.segment || 'Plantas e jardinagem';
+  document.querySelector('#settings-currency').value = data.currency || 'EUR';
+  state.currency = data.currency === 'BRL' ? 'R$' : '€';
+  state.currencyCode = data.currency || 'EUR';
+  document.querySelector('#currency-toggle').innerHTML = `${state.currency} ${state.currencyCode} <span>⌄</span>`;
+  syncCurrencyLabels();
+  calculatePricing();
+}
+
+async function saveBusinessSettings() {
+  const message = document.querySelector('#settings-message');
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  const user = sessionData.session?.user;
+  if (!user) { message.textContent = 'Entre na sua conta para salvar as configurações.'; return; }
+  const name = document.querySelector('#settings-business').value.trim();
+  const segment = document.querySelector('#settings-segment').value;
+  const currency = document.querySelector('#settings-currency').value;
+  if (!name) { message.textContent = 'Informe o nome do negócio.'; return; }
+  const { data: business } = await supabaseClient.from('businesses').select('id').eq('user_id', user.id).limit(1).maybeSingle();
+  const result = business
+    ? await supabaseClient.from('businesses').update({ name, segment, currency }).eq('id', business.id)
+    : await supabaseClient.from('businesses').insert({ user_id: user.id, name, segment, currency });
+  if (result.error) { message.textContent = 'Não foi possível salvar agora. Verifique sua conexão e tente novamente.'; return; }
+  state.currency = currency === 'BRL' ? 'R$' : '€';
+  state.currencyCode = currency;
+  document.querySelector('#currency-toggle').innerHTML = `${state.currency} ${state.currencyCode} <span>⌄</span>`;
+  syncCurrencyLabels();
+  calculatePricing();
+  document.querySelector('#business-name').textContent = name;
+  message.style.color = '#6d9634';
+  message.textContent = 'Configurações salvas com sucesso.';
 }
 
 document.addEventListener('input', event => {
@@ -204,6 +242,7 @@ document.addEventListener('click', event => {
   if (event.target.closest('#close-auth') || event.target.id === 'auth-overlay') closeAuth();
   if (event.target.closest('.auth-tab')) setAuthMode(event.target.closest('.auth-tab').dataset.authMode);
   if (event.target.closest('#sign-out')) supabaseClient?.auth.signOut().then(() => window.location.reload());
+  if (event.target.closest('#save-settings')) saveBusinessSettings();
   if (event.target.closest('.mobile-menu')) document.querySelector('.sidebar').classList.toggle('open');
   if (event.target.closest('#currency-toggle')) { state.currency = state.currency === '€' ? 'R$' : '€'; state.currencyCode = state.currency === '€' ? 'EUR' : 'BRL'; event.target.closest('#currency-toggle').innerHTML = `${state.currency} ${state.currencyCode} <span>⌄</span>`; syncCurrencyLabels(); calculatePricing(); }
 });
