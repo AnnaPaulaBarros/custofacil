@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f6f7f2" />
+  <title>CustoFácil | Formação de preço</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navegação principal">
+      <div class="brand-lockup">
+        <div class="brand-mark" aria-hidden="true">✳</div>
+        <div><strong>Custo<span>Fácil</span></strong><small>Formação de preço</small></div>
+      </div>
+      <div class="business-switcher">
+        <div class="avatar">J</div>
+        <div><span>Meu negócio</span><strong>Jardim da Ju</strong></div>
+        <button class="icon-button" aria-label="Trocar negócio">⌄</button>
+      </div>
+      <nav class="main-nav">
+        <p class="nav-label">Visão geral</p>
+        <button class="nav-item active" data-view="dashboard"><span>⌂</span>Dashboard</button>
+        <button class="nav-item" data-view="products"><span>▦</span>Produtos</button>
+        <button class="nav-item primary-nav" data-view="pricing"><span>＋</span>Nova precificação</button>
+        <p class="nav-label">Estrutura</p>
+        <button class="nav-item" data-view="materials"><span>▧</span>Materiais</button>
+        <button class="nav-item" data-view="labor"><span>◌</span>Mão de obra</button>
+        <button class="nav-item" data-view="costs"><span>◈</span>Custos indiretos</button>
+        <p class="nav-label">Ferramentas</p>
+        <button class="nav-item" data-view="analysis"><span>◒</span>Análises</button>
+        <button class="nav-item" data-view="simulator"><span>⌁</span>Simulador</button>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="nav-item"><span>⚙</span>Configurações</button>
+        <div class="help-card"><div class="help-icon">?</div><div><strong>Precisa de ajuda?</strong><small>Veja como calcular melhor</small></div><button class="icon-button">↗</button></div>
+        <div class="profile" id="profile-area"><div class="avatar coral">?</div><div><strong>Visitante</strong><small>Teste gratuito</small></div><button class="profile-login" id="open-auth">Entrar</button></div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button class="mobile-menu" aria-label="Abrir menu">☰</button>
+        <div class="breadcrumb"><span>Meu negócio</span><b>/</b><strong id="breadcrumb-current">Dashboard</strong></div>
+        <div class="top-actions"><button class="ghost-button notification" aria-label="Notificações">♢<i></i></button><button class="ghost-button" id="currency-toggle">€ EUR <span>⌄</span></button></div>
+      </header>
+
+      <section class="view active-view" id="dashboard-view">
+        <div class="page-heading"><div><p class="eyebrow">DOMINGO, 20 DE SETEMBRO DE 2026</p><h1>Bom dia, Anna <span>✦</span></h1><p class="heading-subtitle">Aqui está um resumo de como anda a saúde dos seus preços.</p></div><button class="button button-dark" data-view="pricing">＋ Nova precificação</button></div>
+        <div class="metric-grid">
+          <article class="metric-card accent-lime"><div class="metric-top"><span>Produtos cadastrados</span><span class="metric-icon">▦</span></div><strong>12</strong><p><b class="positive">+3</b> este mês</p></article>
+          <article class="metric-card accent-yellow"><div class="metric-top"><span>Custo médio</span><span class="metric-icon">◒</span></div><strong>€ 14,82</strong><p><b class="positive">↓ 4,2%</b> vs. mês anterior</p></article>
+          <article class="metric-card accent-coral"><div class="metric-top"><span>Margem média</span><span class="metric-icon">↗</span></div><strong>32,4%</strong><p><b class="negative">-1,8 p.p.</b> vs. mês anterior</p></article>
+          <article class="metric-card accent-blue"><div class="metric-top"><span>Lucro estimado</span><span class="metric-icon">✦</span></div><strong>€ 2.840</strong><p><b class="positive">+12,5%</b> este mês</p></article>
+        </div>
+        <div class="dashboard-grid">
+          <article class="panel chart-panel"><div class="panel-heading"><div><h2>Custo por produto</h2><p>Veja onde está concentrado o seu custo.</p></div><button class="select-button">Últimos 30 dias ⌄</button></div><div class="bar-chart" aria-label="Gráfico de custo por produto"><div class="y-axis"><span>€ 40</span><span>€ 30</span><span>€ 20</span><span>€ 10</span><span>€ 0</span></div><div class="bars"><div class="bar-wrap"><div class="bar" style="height:82%"><span>€ 32,80</span></div><small>Planta<br>ornamental</small></div><div class="bar-wrap"><div class="bar yellow" style="height:60%"><span>€ 24,10</span></div><small>Kit<br>jardinagem</small></div><div class="bar-wrap"><div class="bar coral" style="height:45%"><span>€ 18,40</span></div><small>Vaso<br>cerâmico</small></div><div class="bar-wrap"><div class="bar blue" style="height:34%"><span>€ 13,90</span></div><small>Arranjo<br>floral</small></div><div class="bar-wrap"><div class="bar lilac" style="height:26%"><span>€ 10,20</span></div><small>Mini<br>terrário</small></div></div></div></article>
+          <article class="panel insight-panel"><div class="panel-heading"><div><h2>Olhar rápido</h2><p>Pequenos sinais, grandes decisões.</p></div><span class="sparkle">✦</span></div><div class="insight"><div class="insight-symbol">↗</div><div><strong>Matéria-prima pesa mais</strong><p>Ela representa <b>62%</b> do custo da sua Planta ornamental.</p><a href="#" data-view="pricing">Revisar produto →</a></div></div><div class="insight"><div class="insight-symbol soft">!</div><div><strong>3 produtos abaixo da meta</strong><p>A margem deles está menor que os 30% desejados.</p><a href="#" data-view="products">Ver produtos →</a></div></div><div class="mini-note"><span>☼</span><p>Uma alta de 10% no substrato aumentaria seu custo unitário em <b>€ 0,42</b>.</p></div></article>
+        </div>
+        <div class="bottom-grid"><article class="panel products-panel"><div class="panel-heading"><div><h2>Seus produtos</h2><p>Os últimos itens precificados.</p></div><button class="text-button" data-view="products">Ver todos →</button></div><div class="product-list"><div class="product-row"><div class="product-thumb plant">♧</div><div class="product-name"><strong>Planta ornamental</strong><span>Plantas · unidade</span></div><div class="product-value"><strong>€ 32,80</strong><span>Preço sugerido</span></div><div class="margin-pill good">36,8%</div><button class="row-menu">•••</button></div><div class="product-row"><div class="product-thumb kit">▧</div><div class="product-name"><strong>Kit jardinagem</strong><span>Acessórios · kit</span></div><div class="product-value"><strong>€ 24,10</strong><span>Preço sugerido</span></div><div class="margin-pill good">31,2%</div><button class="row-menu">•••</button></div><div class="product-row"><div class="product-thumb vase">◯</div><div class="product-name"><strong>Vaso cerâmico</strong><span>Vasos · unidade</span></div><div class="product-value"><strong>€ 18,40</strong><span>Preço sugerido</span></div><div class="margin-pill warning">24,7%</div><button class="row-menu">•••</button></div></div></article><article class="panel goal-panel"><div class="panel-heading"><div><h2>Meta do mês</h2><p>Lucro estimado até agora.</p></div><button class="icon-button">•••</button></div><div class="goal-amount"><strong>€ 2.840</strong><span>de € 4.000</span></div><div class="progress-track"><div style="width:71%"></div></div><div class="goal-footer"><span>71% alcançado</span><b>Faltam € 1.160</b></div><div class="goal-tip">✦ <span>Você está no caminho certo. Mais 4 vendas como a sua Planta ornamental alcançam a meta.</span></div></article></div>
+      </section>
+
+      <section class="view" id="pricing-view">
+        <div class="page-heading compact"><div><p class="eyebrow">NOVA PRECIFICAÇÃO</p><h1>Vamos descobrir o preço certo.</h1><p class="heading-subtitle">Preencha os custos do seu produto. O resultado se atualiza na hora.</p></div><div class="step-indicator"><span class="step active">1</span><i></i><span class="step">2</span><i></i><span class="step">3</span><small>Produto & custos</small></div></div>
+        <div class="pricing-layout"><div class="pricing-form">
+          <article class="panel form-panel"><div class="form-heading"><div class="section-number">01</div><div><h2>Sobre o produto</h2><p>Comece com o básico para identificar seu produto.</p></div></div><div class="form-grid"><label>Nome do produto<input id="product-name" value="Planta ornamental" placeholder="Ex.: Bolo de chocolate"></label><label>Categoria<select id="product-category"><option>Plantas e jardinagem</option><option>Alimentação</option><option>Artesanato</option><option>Serviço</option></select></label><label>Unidade de venda<select><option>unidade</option><option>kg</option><option>serviço</option><option>kit</option></select></label><label>Quantidade produzida<input id="production-quantity" type="number" value="10" min="1"></label></div></article>
+          <article class="panel form-panel"><div class="form-heading"><div class="section-number">02</div><div><h2>Matérias-primas</h2><p>Quanto você gasta nos ingredientes ou materiais?</p></div><button class="button button-outline small" id="add-material">＋ Adicionar item</button></div><div class="table-wrap"><table><thead><tr><th>Material</th><th>Qtd. comprada</th><th>Preço pago</th><th>Qtd. utilizada</th><th>Custo utilizado</th><th></th></tr></thead><tbody id="materials-body"><tr><td><input class="material-name" value="Muda de planta"></td><td><input class="material-purchase-qty" type="number" value="10"></td><td><div class="input-money"><span>€</span><input class="material-price" type="number" value="35" step="0.01"></div></td><td><input class="material-used-qty" type="number" value="1" step="0.1"></td><td class="calculated material-total">€ 3,50</td><td><button class="delete-row" aria-label="Excluir material">×</button></td></tr><tr><td><input class="material-name" value="Substrato"></td><td><input class="material-purchase-qty" type="number" value="10"></td><td><div class="input-money"><span>€</span><input class="material-price" type="number" value="20" step="0.01"></div></td><td><input class="material-used-qty" type="number" value="0.5" step="0.1"></td><td class="calculated material-total">€ 1,00</td><td><button class="delete-row" aria-label="Excluir material">×</button></td></tr><tr><td><input class="material-name" value="Vaso cerâmico"></td><td><input class="material-purchase-qty" type="number" value="12"></td><td><div class="input-money"><span>€</span><input class="material-price" type="number" value="48" step="0.01"></div></td><td><input class="material-used-qty" type="number" value="1" step="0.1"></td><td class="calculated material-total">€ 4,00</td><td><button class="delete-row" aria-label="Excluir material">×</button></td></tr></tbody></table></div><div class="table-total"><span>Total de materiais</span><strong id="materials-total">€ 8,50</strong></div></article>
+          <article class="panel form-panel"><div class="form-heading"><div class="section-number">03</div><div><h2>Mão de obra</h2><p>Inclua o tempo que você investe na produção.</p></div><button class="button button-outline small" id="add-labor">＋ Adicionar etapa</button></div><div class="labor-settings"><label>Valor da sua hora<div class="input-money"><span>€</span><input id="hourly-rate" type="number" value="10" step="0.01"><small>/ hora</small></div></label><div class="labor-total"><span>Custo total de mão de obra</span><strong id="labor-total">€ 5,00</strong></div></div><div id="labor-list"><div class="labor-row"><input value="Preparação e montagem"><input type="number" class="labor-hours" value="0"><span>h</span><input type="number" class="labor-minutes" value="30"><span>min</span><button class="delete-row">×</button></div></div></article>
+          <article class="panel form-panel"><div class="form-heading"><div class="section-number">04</div><div><h2>Custos indiretos</h2><p>Divida os custos do negócio entre os produtos.</p></div><button class="button button-outline small" id="add-cost">＋ Adicionar custo</button></div><div id="cost-list"><div class="cost-row"><input value="Água e energia"><div class="input-money"><span>€</span><input class="monthly-cost" type="number" value="120" step="0.01"><small>/ mês</small></div><input class="monthly-production" type="number" value="100"><span>produtos/mês</span><strong class="indirect-total">€ 1,20</strong><button class="delete-row">×</button></div></div><div class="table-total"><span>Total por produto</span><strong id="indirect-total">€ 1,20</strong></div></article>
+          <article class="panel form-panel"><div class="form-heading"><div class="section-number">05</div><div><h2>Perdas e taxas</h2><p>Considere o que escapa do custo aparente.</p></div></div><div class="form-grid"><label>Perdas de materiais (%)<div class="input-suffix"><input id="loss-percent" type="number" value="5" min="0" max="100" step="0.1"><span>%</span></div><small class="field-hint">Uma margem para desperdícios e imprevistos.</small></label><label>Taxas sobre a venda (%)<div class="input-suffix"><input id="selling-fees" type="number" value="6" min="0" max="100" step="0.1"><span>%</span></div><small class="field-hint">Cartão, marketplace, comissão e impostos.</small></label><label>Margem desejada (%)<div class="input-suffix highlight-input"><input id="desired-margin" type="number" value="30" min="0" max="99" step="0.1"><span>%</span></div><small class="field-hint">O que deve sobrar depois dos custos.</small></label></div></article>
+        </div><aside class="result-sticky"><div class="result-label">RESULTADO EM TEMPO REAL <span class="live-dot"></span></div><div class="print-report-heading"><div class="brand-mark">✳</div><div><strong>CustoFácil</strong><small>Relatório de precificação</small></div></div><div class="result-card"><p>Preço sugerido</p><strong id="suggested-price">€ 25,86</strong><div class="result-divider"></div><div class="result-line"><span>Custo total</span><b id="total-cost">€ 15,88</b></div><div class="result-line"><span>Lucro estimado</span><b class="green" id="estimated-profit">€ 7,76</b></div><div class="result-line"><span>Margem</span><b id="result-margin">30,0%</b></div><div class="result-line"><span>Markup</span><b id="result-markup">1,63x</b></div><button class="button button-light full" id="save-product">Salvar precificação →</button><button class="button button-print full" id="export-pdf">▣ Exportar PDF</button></div><div class="formula-note"><span>✦</span><p>Seu preço considera custos, <b>6%</b> de taxas e a margem de <b>30%</b> que você deseja.</p></div><div class="breakdown-card"><div class="panel-heading"><h3>Composição do custo</h3><span>€ 15,88</span></div><div class="donut"><div class="donut-hole"><strong id="donut-total">€ 15,88</strong><small>custo total</small></div></div><div class="legend"><span><i class="dot green-dot"></i>Materiais <b id="legend-materials">54%</b></span><span><i class="dot blue-dot"></i>Mão de obra <b id="legend-labor">32%</b></span><span><i class="dot yellow-dot"></i>Indiretos <b id="legend-indirect">8%</b></span><span><i class="dot coral-dot"></i>Perdas <b id="legend-loss">6%</b></span></div></div></aside></div>
+      </section>
+
+      <section class="view" id="products-view"><div class="page-heading"><div><p class="eyebrow">CATÁLOGO</p><h1>Meus produtos</h1><p class="heading-subtitle">Todos os seus produtos em um só lugar.</p></div><button class="button button-dark" data-view="pricing">＋ Novo produto</button></div><article class="panel products-table-panel"><div class="table-toolbar"><div class="search-box">⌕<input placeholder="Buscar produto..."></div><button class="select-button">Todas as categorias ⌄</button></div><div class="table-wrap"><table class="full-table"><thead><tr><th>Produto</th><th>Custo unitário</th><th>Preço sugerido</th><th>Margem</th><th>Lucro</th><th>Atualizado</th><th></th></tr></thead><tbody><tr><td><strong>Planta ornamental</strong><small>Plantas e jardinagem · unidade</small></td><td>€ 15,88</td><td><strong>€ 25,86</strong></td><td><span class="margin-pill good">30,0%</span></td><td class="green">€ 7,76</td><td>Hoje</td><td>•••</td></tr><tr><td><strong>Kit jardinagem</strong><small>Acessórios · kit</small></td><td>€ 16,58</td><td><strong>€ 24,10</strong></td><td><span class="margin-pill good">31,2%</span></td><td class="green">€ 7,52</td><td>Ontem</td><td>•••</td></tr><tr><td><strong>Vaso cerâmico</strong><small>Vasos · unidade</small></td><td>€ 13,86</td><td><strong>€ 18,40</strong></td><td><span class="margin-pill warning">24,7%</span></td><td class="green">€ 4,54</td><td>18 set</td><td>•••</td></tr><tr><td><strong>Arranjo floral</strong><small>Plantas e jardinagem · unidade</small></td><td>€ 9,82</td><td><strong>€ 16,90</strong></td><td><span class="margin-pill good">34,8%</span></td><td class="green">€ 5,88</td><td>15 set</td><td>•••</td></tr></tbody></table></div></article></section>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status">Precificação salva com sucesso.</div>
+  <div class="auth-overlay" id="auth-overlay" hidden>
+    <section class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+      <button class="auth-close" id="close-auth" aria-label="Fechar">×</button>
+      <div class="auth-mark">✳</div>
+      <p class="eyebrow">CUSTOFÁCIL</p>
+      <h2 id="auth-title">Guarde suas precificações.</h2>
+      <p class="auth-description">Crie uma conta gratuita para acessar seus produtos de qualquer lugar.</p>
+      <div class="auth-tabs"><button class="auth-tab active" data-auth-mode="login">Entrar</button><button class="auth-tab" data-auth-mode="signup">Criar conta</button></div>
+      <form id="auth-form">
+        <label class="auth-name-field" hidden>Nome<input id="auth-name" type="text" autocomplete="name" placeholder="Seu nome"></label>
+        <label>E-mail<input id="auth-email" type="email" autocomplete="email" placeholder="voce@exemplo.com" required></label>
+        <label>Senha<input id="auth-password" type="password" autocomplete="current-password" placeholder="Mínimo de 6 caracteres" minlength="6" required></label>
+        <p class="auth-message" id="auth-message" role="status"></p>
+        <button class="button button-dark full" type="submit" id="auth-submit">Entrar na conta</button>
+      </form>
+      <p class="auth-privacy">Seus dados ficam protegidos e só você acessa suas precificações.</p>
+    </section>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+</body>
+</html>
