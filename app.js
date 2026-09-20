@@ -143,7 +143,17 @@ async function submitAuth(event) {
     : await supabaseClient.auth.signInWithPassword({ email, password });
   submit.disabled = false;
   submit.textContent = authMode === 'signup' ? 'Criar conta gratuita' : 'Entrar na conta';
-  if (response.error) { message.textContent = response.error.message.includes('Invalid login') ? 'E-mail ou senha incorretos.' : response.error.message; return; }
+  if (response.error) {
+    const errorText = response.error.message.toLowerCase();
+    if (errorText.includes('security') || errorText.includes('rate limit') || errorText.includes('too many')) {
+      message.textContent = 'Por segurança, aguarde alguns segundos antes de tentar novamente. Depois, confira o e-mail e a senha.';
+    } else if (errorText.includes('invalid login')) {
+      message.textContent = 'E-mail ou senha incorretos.';
+    } else {
+      message.textContent = response.error.message;
+    }
+    return;
+  }
   if (authMode === 'signup' && !response.data.session) { message.style.color = '#6d9634'; message.textContent = 'Conta criada. Verifique seu e-mail para confirmar o acesso.'; return; }
   updateProfile(response.data.user);
   closeAuth();
@@ -152,7 +162,11 @@ async function submitAuth(event) {
 function updateProfile(user) {
   if (!user) return;
   const name = user.user_metadata?.name || user.email?.split('@')[0] || 'Minha conta';
-  document.querySelector('#profile-area').innerHTML = `<div class="avatar coral">${name.slice(0, 2).toUpperCase()}</div><div><strong>${name}</strong><small>${user.email}</small></div><button class="profile-login" id="sign-out">Sair</button>`;
+  const initials = name.trim().slice(0, 2).toUpperCase();
+  document.querySelector('#business-avatar').textContent = initials;
+  document.querySelector('#business-name').textContent = name;
+  document.querySelector('#greeting-name').textContent = name.split(' ')[0];
+  document.querySelector('#profile-area').innerHTML = `<div class="avatar coral">${initials}</div><div><strong>${name}</strong><small>${user.email}</small></div><button class="profile-login" id="sign-out">Sair</button>`;
 }
 
 async function restoreAuth() {
