@@ -194,6 +194,7 @@ function setAuthMode(mode) {
   document.querySelector('#auth-title').textContent = mode === 'signup' ? 'Comece a guardar seus preços.' : 'Guarde suas precificações.';
   document.querySelector('#auth-submit').textContent = mode === 'signup' ? 'Criar conta gratuita' : 'Entrar na conta';
   document.querySelector('#reset-password-field').hidden = mode !== 'reset';
+  document.querySelector('.terms-consent').hidden = mode !== 'signup';
   if (mode === 'reset') document.querySelector('#auth-submit').textContent = 'Atualizar senha';
   document.querySelector('#forgot-password').hidden = mode !== 'login';
   document.querySelector('#auth-message').textContent = '';
@@ -237,6 +238,7 @@ async function submitAuth(event) {
   const name = document.querySelector('#auth-name').value.trim();
   if (!supabaseClient) { message.textContent = 'Não foi possível conectar ao Supabase.'; return; }
   if (authMode === 'reset') { await updatePassword(); return; }
+  if (authMode === 'signup' && !document.querySelector('#terms-consent').checked) { message.textContent = 'Você precisa aceitar os Termos e Condições para criar a conta.'; return; }
   const submit = document.querySelector('#auth-submit');
   submit.disabled = true;
   submit.textContent = 'Aguarde...';
