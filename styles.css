@@ -1,5 +1,6 @@
  .visual-leaf{width:112px!important;height:112px!important;border-radius:18px!important;overflow:hidden!important;background:#e9f1d6!important;opacity:.78;transform:rotate(-5deg);box-shadow:0 10px 22px rgba(66,87,45,.12)}.visual-leaf img{width:100%!important;height:100%!important;max-width:none!important;transform:none!important;object-fit:contain!important;mix-blend-mode:multiply;opacity:.96;filter:saturate(.86) brightness(1.04)}
 html,body{max-width:100%;overflow-x:hidden}
+ [hidden]{display:none!important}
  .brand-lockup .brand-mark{width:46px;height:46px;border-radius:13px;flex-shrink:0}
  .brand-lockup .brand-mark img{width:100%;height:100%;transform:none;object-fit:contain}
  .visual-leaf{width:38px;height:38px;border-radius:7px;background:#c1ff70}.visual-leaf img{width:100%;height:100%;transform:none;object-fit:contain}
