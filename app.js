@@ -116,7 +116,7 @@ function showView(view) {
   document.querySelectorAll('.view').forEach(section => section.classList.remove('active-view'));
   document.querySelector(`#${view}-view`)?.classList.add('active-view');
   document.querySelectorAll('.nav-item[data-view]').forEach(item => item.classList.toggle('active', item.dataset.view === view));
-  const names = { dashboard: 'Dashboard', pricing: 'Nova precificação', products: 'Produtos', materials: 'Materiais', labor: 'Mão de obra', costs: 'Custos indiretos', analysis: 'Análises', simulator: 'Simulador', settings: 'Configurações' };
+  const names = { landing: 'Início', dashboard: 'Dashboard', pricing: 'Nova precificação', products: 'Produtos', materials: 'Materiais', labor: 'Mão de obra', costs: 'Custos indiretos', analysis: 'Análises', simulator: 'Simulador', settings: 'Configurações' };
   document.querySelector('#breadcrumb-current').textContent = names[view] || 'Dashboard';
   document.querySelector('.sidebar')?.classList.remove('open');
   window.scrollTo({ top: 0, behavior: 'smooth' });
