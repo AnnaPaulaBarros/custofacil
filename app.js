@@ -183,6 +183,7 @@ function showView(view) {
   document.querySelector('#breadcrumb-current').textContent = names[view] || 'Dashboard';
   document.querySelector('.sidebar')?.classList.remove('open');
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (view === 'products') loadProducts();
 }
 
 let authMode = 'login';
@@ -260,6 +261,7 @@ async function submitAuth(event) {
   }
   if (authMode === 'signup' && !response.data.session) { message.style.color = '#6d9634'; message.textContent = 'Conta criada. Verifique seu e-mail para confirmar o acesso.'; return; }
   updateProfile(response.data.user);
+  loadProducts();
   closeAuth();
 }
 
@@ -341,6 +343,7 @@ async function savePricing() {
   await supabaseClient.from('pricing').insert({ product_id: product.id, desired_margin: numberValue('#desired-margin'), loss_percentage: numberValue('#loss-percent'), markup: result.markup, total_cost: result.totalCost, suggested_price: result.suggestedPrice, estimated_profit: result.profit });
   await supabaseClient.from('price_history').insert({ product_id: product.id, total_cost: result.totalCost, suggested_price: result.suggestedPrice, desired_margin: numberValue('#desired-margin'), estimated_profit: result.profit });
   message.textContent = 'Precificação salva com sucesso.'; message.classList.add('show'); setTimeout(() => message.classList.remove('show'), 3000);
+  loadProducts();
 }
 
 document.addEventListener('input', event => {
