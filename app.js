@@ -92,6 +92,23 @@ function calculateSimulator() {
   if (document.querySelector('#profit-target-result')) document.querySelector('#profit-target-result').textContent = `${Math.ceil(targetSales)} unidades`;
 }
 
+function calculateFinancialTools() {
+  const goalProfit = numberValue('#goal-profit');
+  const goalPrice = numberValue('#goal-price');
+  const goalVariable = numberValue('#goal-variable');
+  const goalFixed = numberValue('#goal-fixed');
+  const contribution = goalPrice - goalVariable;
+  const goalSales = window.CustoFacilCalculations.salesForProfit(goalProfit, goalFixed, goalPrice, goalVariable);
+  if (document.querySelector('#goal-sales-result')) document.querySelector('#goal-sales-result').textContent = `${Math.ceil(goalSales)} unidades`;
+  if (document.querySelector('#goal-contribution-result')) document.querySelector('#goal-contribution-result').textContent = money(contribution);
+  const months = Number(document.querySelector('#forecast-horizon')?.value || 3);
+  const scenario = Number(document.querySelector('#forecast-scenario')?.value || 1);
+  const revenue = numberValue('#forecast-revenue') * scenario * months;
+  const costs = numberValue('#forecast-costs') * months;
+  if (document.querySelector('#forecast-revenue-result')) document.querySelector('#forecast-revenue-result').textContent = money(revenue);
+  if (document.querySelector('#forecast-profit-result')) document.querySelector('#forecast-profit-result').textContent = money(revenue - costs);
+}
+
 async function getCurrentBusiness() {
   const { data: sessionData } = await supabaseClient.auth.getSession();
   if (!sessionData.session?.user) return null;
@@ -179,7 +196,7 @@ function showView(view) {
   document.querySelectorAll('.view').forEach(section => section.classList.remove('active-view'));
   document.querySelector(`#${view}-view`)?.classList.add('active-view');
   document.querySelectorAll('.nav-item[data-view]').forEach(item => item.classList.toggle('active', item.dataset.view === view));
-  const names = { landing: 'Início', dashboard: 'Dashboard', pricing: 'Nova precificação', products: 'Produtos', materials: 'Materiais', labor: 'Mão de obra', costs: 'Custos indiretos', analysis: 'Análises', simulator: 'Simulador', settings: 'Configurações' };
+  const names = { landing: 'Início', dashboard: 'Dashboard', pricing: 'Nova precificação', products: 'Produtos', materials: 'Materiais', labor: 'Mão de obra', costs: 'Custos indiretos', analysis: 'Análises', simulator: 'Simulador', cashflow: 'Fluxo de caixa', goals: 'Metas', forecasts: 'Previsões', suppliers: 'Fornecedores', inventory: 'Estoque', reports: 'Relatórios', settings: 'Configurações' };
   document.querySelector('#breadcrumb-current').textContent = names[view] || 'Dashboard';
   document.querySelector('.sidebar')?.classList.remove('open');
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -349,6 +366,7 @@ async function savePricing() {
 document.addEventListener('input', event => {
   if (event.target.closest('#pricing-view')) calculatePricing();
   if (event.target.closest('#simulator-view')) calculateSimulator();
+  if (event.target.closest('#goals-view') || event.target.closest('#forecasts-view')) calculateFinancialTools();
 });
 document.addEventListener('click', event => {
   const viewTrigger = event.target.closest('[data-view]');
@@ -379,5 +397,6 @@ document.addEventListener('change', event => { if (event.target.id === 'products
 syncCurrencyLabels();
 calculatePricing();
 calculateSimulator();
+calculateFinancialTools();
 document.querySelector('#auth-form').addEventListener('submit', submitAuth);
 restoreAuth();

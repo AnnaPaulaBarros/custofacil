@@ -1,5 +1,4 @@
 -- CustoFacil: schema inicial do banco
--- Execute este arquivo no Supabase em SQL Editor > New query > Run.
 
 create extension if not exists "pgcrypto";
 
@@ -31,6 +30,24 @@ create table if not exists public.materials (
   unit text not null default 'unidade',
   purchase_quantity numeric(14,4) not null check (purchase_quantity > 0),
   purchase_price numeric(14,4) not null check (purchase_price >= 0),
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.services (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid not null references public.businesses(id) on delete cascade,
+  name text not null,
+  description text,
+  average_minutes integer not null default 0 check (average_minutes >= 0),
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.suppliers (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid not null references public.businesses(id) on delete cascade,
+  name text not null,
+  phone text,
+  email text,
   created_at timestamptz not null default now()
 );
 
@@ -99,6 +116,39 @@ create table if not exists public.business_goals (
   unique (business_id)
 );
 
+create table if not exists public.cash_entries (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid not null references public.businesses(id) on delete cascade,
+  type text not null check (type in ('income', 'expense')),
+  category text not null default 'other',
+  description text not null,
+  amount numeric(14,4) not null check (amount >= 0),
+  entry_date date not null default current_date,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.inventory (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid not null references public.businesses(id) on delete cascade,
+  material_id uuid references public.materials(id) on delete cascade,
+  name text not null,
+  quantity numeric(14,4) not null default 0,
+  minimum_quantity numeric(14,4) not null default 0,
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.financial_forecasts (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid not null references public.businesses(id) on delete cascade,
+  horizon_months integer not null check (horizon_months in (1, 3, 6, 12)),
+  scenario text not null check (scenario in ('pessimistic', 'realistic', 'optimistic')),
+  projected_revenue numeric(14,4) not null default 0,
+  projected_costs numeric(14,4) not null default 0,
+  projected_profit numeric(14,4) not null default 0,
+  projected_cash numeric(14,4) not null default 0,
+  created_at timestamptz not null default now()
+);
+
 create index if not exists businesses_user_id_idx on public.businesses(user_id);
 create index if not exists products_business_id_idx on public.products(business_id);
 create index if not exists materials_business_id_idx on public.materials(business_id);
@@ -106,6 +156,11 @@ create index if not exists indirect_costs_business_id_idx on public.indirect_cos
 create index if not exists pricing_product_id_idx on public.pricing(product_id);
 create index if not exists price_history_product_id_idx on public.price_history(product_id);
 create index if not exists business_goals_business_id_idx on public.business_goals(business_id);
+create index if not exists services_business_id_idx on public.services(business_id);
+create index if not exists suppliers_business_id_idx on public.suppliers(business_id);
+create index if not exists cash_entries_business_id_idx on public.cash_entries(business_id);
+create index if not exists inventory_business_id_idx on public.inventory(business_id);
+create index if not exists financial_forecasts_business_id_idx on public.financial_forecasts(business_id);
 
 -- Cria automaticamente um negocio para cada novo usuario.
 create or replace function public.create_default_business()
@@ -155,6 +210,11 @@ alter table public.selling_costs enable row level security;
 alter table public.pricing enable row level security;
 alter table public.price_history enable row level security;
 alter table public.business_goals enable row level security;
+alter table public.services enable row level security;
+alter table public.suppliers enable row level security;
+alter table public.cash_entries enable row level security;
+alter table public.inventory enable row level security;
+alter table public.financial_forecasts enable row level security;
 
 drop policy if exists businesses_owner_policy on public.businesses;
 create policy businesses_owner_policy on public.businesses
@@ -202,5 +262,30 @@ with check (exists (select 1 from public.products p join public.businesses b on 
 
 drop policy if exists business_goals_owner_policy on public.business_goals;
 create policy business_goals_owner_policy on public.business_goals
+for all using (exists (select 1 from public.businesses b where b.id = business_id and b.user_id = auth.uid()))
+with check (exists (select 1 from public.businesses b where b.id = business_id and b.user_id = auth.uid()));
+
+drop policy if exists services_owner_policy on public.services;
+create policy services_owner_policy on public.services
+for all using (exists (select 1 from public.businesses b where b.id = business_id and b.user_id = auth.uid()))
+with check (exists (select 1 from public.businesses b where b.id = business_id and b.user_id = auth.uid()));
+
+drop policy if exists suppliers_owner_policy on public.suppliers;
+create policy suppliers_owner_policy on public.suppliers
+for all using (exists (select 1 from public.businesses b where b.id = business_id and b.user_id = auth.uid()))
+with check (exists (select 1 from public.businesses b where b.id = business_id and b.user_id = auth.uid()));
+
+drop policy if exists cash_entries_owner_policy on public.cash_entries;
+create policy cash_entries_owner_policy on public.cash_entries
+for all using (exists (select 1 from public.businesses b where b.id = business_id and b.user_id = auth.uid()))
+with check (exists (select 1 from public.businesses b where b.id = business_id and b.user_id = auth.uid()));
+
+drop policy if exists inventory_owner_policy on public.inventory;
+create policy inventory_owner_policy on public.inventory
+for all using (exists (select 1 from public.businesses b where b.id = business_id and b.user_id = auth.uid()))
+with check (exists (select 1 from public.businesses b where b.id = business_id and b.user_id = auth.uid()));
+
+drop policy if exists financial_forecasts_owner_policy on public.financial_forecasts;
+create policy financial_forecasts_owner_policy on public.financial_forecasts
 for all using (exists (select 1 from public.businesses b where b.id = business_id and b.user_id = auth.uid()))
 with check (exists (select 1 from public.businesses b where b.id = business_id and b.user_id = auth.uid()));

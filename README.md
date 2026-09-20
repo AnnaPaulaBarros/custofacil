@@ -395,6 +395,8 @@ O MVP prioriza clareza e velocidade de entrega. O dashboard ainda combina dados 
 - A recuperação envia o link pelo Supabase Auth e permite atualizar a senha após o redirecionamento.
 - Edição, duplicação e exclusão de produtos estão disponíveis no catálogo para usuários autenticados.
 - A importação e exportação atual usa CSV; formatos XLSX e XLS ainda são uma evolução.
+- A primeira camada de gestão financeira já possui telas de fluxo de caixa, metas, previsões, fornecedores, estoque e relatórios.
+- O schema foi ampliado com `services`, `suppliers`, `cash_entries`, `inventory` e `financial_forecasts`, todos protegidos por RLS.
 
 ## Próximas evoluções
 
@@ -404,6 +406,10 @@ O MVP prioriza clareza e velocidade de entrega. O dashboard ainda combina dados 
 4. Evoluir os testes para um framework automatizado.
 5. Adicionar domínio próprio da Pedetech ou do produto.
 6. Migrar para TypeScript quando a complexidade justificar.
+
+### Expansão da plataforma financeira
+
+O próximo ciclo evolui a calculadora para uma plataforma de gestão sem quebrar o núcleo de precificação. As novas tabelas já foram preparadas para registrar serviços, fornecedores, movimentos de caixa, estoque e cenários de previsão. As telas de metas e previsões possuem cálculos locais para validar a experiência antes da persistência completa de cada formulário.
 
 
 
