@@ -425,6 +425,3 @@ Para demonstrar o projeto em uma entrevista:
 11. Explique o schema e as políticas RLS.
 12. Mostre o deploy da Vercel e a integração com GitHub.
 
-## Licença
-
-Projeto desenvolvido para fins de portfólio e evolução do produto CustoFácil dentro da Pedetech.
