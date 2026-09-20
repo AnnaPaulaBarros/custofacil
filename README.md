@@ -1,10 +1,10 @@
-# CustoFácil
+# Pede Custo
 
 > Descubra quanto realmente custa o que você vende.
 
-O **CustoFácil** é uma aplicação web para formação de preço voltada para microempreendedores e pequenos negócios. A ferramenta organiza custos de materiais, mão de obra, despesas indiretas, perdas, taxas e margem desejada para ajudar o usuário a encontrar um preço de venda mais consciente.
+O **Pede Custo** é um serviço da Pedetech para formação de preço voltado para microempreendedores e pequenos negócios. A ferramenta organiza custos de materiais, mão de obra, despesas indiretas, perdas, taxas e margem desejada para ajudar o usuário a encontrar um preço de venda mais consciente.
 
-O projeto faz parte do portfólio da **Pedetech**, uma iniciativa de soluções digitais para pequenos negócios.
+O projeto é um dos serviços da **Pedetech**, uma iniciativa de soluções digitais para pequenos negócios.
 
 ## Acesso
 
